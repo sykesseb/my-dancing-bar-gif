@@ -1,0 +1,9 @@
+{
+  "name": "My Dancing Bar GIF",
+  "description": "Your own animated image on Spotify's progress bar, with precise tracking, custom colors, rainbow, stars and laser glow. English / Español.",
+  "preview": "preview.png",
+  "main": "my-dancing-bar-gif.js",
+  "readme": "README.md",
+  "authors": [{ "name": "sykesseb", "url": "https://github.com/sykesseb" }],
+  "tags": ["gif", "progress-bar", "customization", "rainbow"]
+}

@@ -1,0 +1,9 @@
+test-fixture.html
+test-results.json
+test-suite.cjs
+*.zip
+*.ini
+*.log
+node_modules/
+backups/
+.playwright-mcp/
