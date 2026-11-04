@@ -5,7 +5,7 @@
 - Windows desktop
 - Spotify 1.3.6.1921
 - Spicetify 2.46.4
-- Extension version 1.1.0
+- Extension version 1.1.1
 
 ## Functional checks performed
 
@@ -22,7 +22,9 @@ The extension was exercised in a local Chromium fixture with a simulated Spiceti
 
 At the sampled progress positions, the image-center alignment error in the fixture was below 0.02 CSS pixels. This is a fixture result, not a guarantee for every Spotify layout or image. Transparent padding inside an image can make its visible contents appear off-center.
 
-Manual checks in the Spotify desktop client confirmed the settings panel, language switching, top-bar button, and rainbow-with-stars bar overriding an installed Nyan Cat snippet. The early local version also displayed its animated image overlay in Spotify. File selection and persistence were exercised in the fixture. The current tooltip renderer was updated after the last complete manual UI pass; it still needs a focused hover check in Spotify.
+Manual checks in the Spotify desktop client confirmed the settings panel, language switching, top-bar button, and rainbow-with-stars bar overriding an installed Nyan Cat snippet. The early local version also displayed its animated image overlay in Spotify. File selection and persistence were exercised in the fixture.
+
+For 1.1.1, tooltip regression checks used the real headless Tippy 6.3.7 library. Eight repeated hover/click/open/close cycles completed without a stuck tooltip or JavaScript errors. Mouse leave and keyboard focus/blur removed the popper. Computed tooltip typography was checked for regular weight (400), 14px size and softer text color. A manual check in Spotify confirmed that opening and closing the settings panel no longer leaves the tooltip visible. Exact hover styling in other themes has not been verified.
 
 ## Automated repository checks
 

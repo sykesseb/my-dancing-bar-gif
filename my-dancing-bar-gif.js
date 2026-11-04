@@ -1,4 +1,4 @@
-// My Dancing Bar GIF v1.1.0 — by sykesseb — MIT
+// My Dancing Bar GIF v1.1.1 — by sykesseb — MIT
 // Local images only. No analytics, uploads, audio capture, or playback mutations.
 (async function myDancingBarGif() {
   "use strict";
@@ -66,7 +66,7 @@
     .spicetify-topbar-button[data-mdbg] button:hover { background:var(--mdbg-button-hover,#ffffff18)!important;color:#fff!important;transform:scale(1.04); }
     .spicetify-topbar-button[data-mdbg] button:focus-visible { outline:2px solid #fff;outline-offset:3px; }
     .spicetify-topbar-button[data-mdbg] button svg { width:var(--mdbg-icon-size,24px)!important;height:var(--mdbg-icon-size,24px)!important; }
-    .mdbg-tooltip { color:#fff;background:#282828;border-radius:4px;padding:6px 8px;font-family:var(--encore-body-font-stack,inherit);font-size:14px;font-weight:600;line-height:20px;box-shadow:0 4px 12px #0008; }
+    .mdbg-tooltip { color:#e6e6e6;background:#282828;border-radius:4px;padding:6px 8px;font-family:inherit;font-size:14px;font-weight:400;line-height:20px;box-shadow:0 4px 12px #0008; }
     .mdbg-editor { display:grid;gap:14px;color:var(--spice-text,#fff);font-size:14px;line-height:1.45;max-height:68vh;overflow:auto;padding:2px 8px 2px 2px; }
     .mdbg-editor p,.mdbg-editor h3 {margin:0}.mdbg-editor h3 {font-size:16px;font-weight:700}
     .mdbg-editor .mdbg-language {display:flex;justify-content:space-between;align-items:center;gap:12px}
@@ -231,6 +231,9 @@
     } finally { URL.revokeObjectURL(url); }
   }
   function openSettings() {
+    // Close before opening the modal; a retained focus or pending hover must not pin the tooltip.
+    topbar.tippy?.hide();
+    actualButton.blur();
     const root = document.createElement("div"); root.className = "mdbg-editor"; root.lang = settings.language;
     root.innerHTML = `
       <label class="mdbg-language">${t("language")}<select data-language aria-label="Language / Idioma"><option value="en">English</option><option value="es">Español</option></select></label>
@@ -326,14 +329,18 @@
   if (S.Tippy) {
     topbar.tippy?.destroy();
     topbar.tippy = S.Tippy(topbar.element, {
-    ...S.TippyProps,
-    content: NAME, delay: [200, 0], animation: false,
+    content: NAME, delay: [200, 0], animation: false, duration: [0, 0],
+    placement: "bottom", trigger: "mouseenter focusin", hideOnClick: true, interactive: false,
+    appendTo: () => document.body,
     render(instance) {
       const popper = document.createElement("div"), content = document.createElement("div");
+      popper.setAttribute("role", "tooltip");
       content.className = "mdbg-tooltip"; content.textContent = NAME; popper.append(content);
       return { popper, onUpdate(_, props) { content.textContent = props.content; } };
     },
-    onShow() { return true; }, onMount() {}, onHide(instance) { instance.unmount(); }
+    // Headless Tippy unmounts automatically with animation:false. Calling unmount in onHide
+    // re-enters hide while state.isVisible is still true, causing recursion and a stuck popper.
+    onShow() { return !modal?.isConnected; }
     });
   }
   actualButton.removeAttribute("title");
