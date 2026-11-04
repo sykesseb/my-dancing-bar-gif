@@ -5,7 +5,7 @@
 - Windows desktop
 - Spotify 1.3.6.1921
 - Spicetify 2.46.4
-- Extension version 1.1.1
+- Extension version 1.1.2
 
 ## Functional checks performed
 
@@ -25,6 +25,8 @@ At the sampled progress positions, the image-center alignment error in the fixtu
 Manual checks in the Spotify desktop client confirmed the settings panel, language switching, top-bar button, and rainbow-with-stars bar overriding an installed Nyan Cat snippet. The early local version also displayed its animated image overlay in Spotify. File selection and persistence were exercised in the fixture.
 
 For 1.1.1, tooltip regression checks used the real headless Tippy 6.3.7 library. Eight repeated hover/click/open/close cycles completed without a stuck tooltip or JavaScript errors. Mouse leave and keyboard focus/blur removed the popper. Computed tooltip typography was checked for regular weight (400), 14px size and softer text color. A manual check in Spotify confirmed that opening and closing the settings panel no longer leaves the tooltip visible. Exact hover styling in other themes has not been verified.
+
+For 1.1.2, a header fixture reproduced the separate history/custom-app groups. The four buttons had equal 8px gaps and matching vertical centers after loading, resizing and reconstructing the custom-app group. The test also confirmed that the extension does not move nodes into Spotify's React-owned custom-app group. Manual checks in Spotify confirmed the aligned row and that the spacing survives navigation to Listening Stats.
 
 ## Automated repository checks
 

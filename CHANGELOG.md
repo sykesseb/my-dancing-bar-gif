@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.2
+
+- Match the spacing between the extension button and Listening Stats to the spacing between the neighboring custom-app buttons.
+- Recalculate spacing after navigation or header updates while preserving Spotify's ownership of its controls.
+
 ## 1.1.1
 
 - Fix a tooltip that could remain visible after opening the settings panel. Removed a recursive hide/unmount callback and close the tooltip before opening settings.

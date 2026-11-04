@@ -1,4 +1,4 @@
-// My Dancing Bar GIF v1.1.1 — by sykesseb — MIT
+// My Dancing Bar GIF v1.1.2 — by sykesseb — MIT
 // Local images only. No analytics, uploads, audio capture, or playback mutations.
 (async function myDancingBarGif() {
   "use strict";
@@ -61,7 +61,7 @@
     #mdbg-rail[data-mode=neon] .mdbg-dot { background:white;box-shadow:0 0 5px var(--mdbg-color);width:6px;height:6px; }
     html body .playback-progressbar[data-mdbg-image]::before { content:none!important; }
     html body .playback-progressbar[data-mdbg-bar] :is(.x-progressBar-fillColor,.x-progressBar-progressBarBg,.x-progressBar-progressFillColor,.progress-bar__slider,[data-testid=saber-hilt-button],[data-testid=progress-bar-saber-overlay],[data-testid=easter-egg-handle]) { opacity:0!important; }
-    .spicetify-topbar-button[data-mdbg] { display:flex;align-items:center;justify-content:center; }
+    .spicetify-topbar-button[data-mdbg] { display:flex;align-items:center;justify-content:center;flex-shrink:0; }
     .spicetify-topbar-button[data-mdbg] button { display:flex!important;align-items:center!important;justify-content:center!important;width:var(--mdbg-button-size,40px)!important;height:var(--mdbg-button-size,40px)!important;min-width:var(--mdbg-button-size,40px)!important;padding:0!important;border:0!important;border-radius:50%!important;background:var(--mdbg-button-bg,#00000042)!important;color:var(--mdbg-button-fg,#b3b3b3)!important;cursor:pointer;transition:background-color .15s,color .15s,transform .15s; }
     .spicetify-topbar-button[data-mdbg] button:hover { background:var(--mdbg-button-hover,#ffffff18)!important;color:#fff!important;transform:scale(1.04); }
     .spicetify-topbar-button[data-mdbg] button:focus-visible { outline:2px solid #fff;outline-offset:3px; }
@@ -315,15 +315,47 @@
   topbar.element.dataset.mdbg = "true";
   const actualButton = topbar.element.querySelector("button") || topbar.element;
   actualButton.setAttribute("aria-label", NAME);
+  let observedHeader = null, placementFrame = 0;
+  const placementObserver = new MutationObserver(() => {
+    if (!placementFrame) placementFrame = requestAnimationFrame(() => {
+      placementFrame = 0;
+      matchMarketplace();
+    });
+  });
   // Match the user's installed Marketplace control rather than inheriting the small back-arrow styling.
   function matchMarketplace() {
     const reference = document.querySelector('button[aria-label="Marketplace"]');
-    if (!reference || reference === actualButton) return;
+    if (!reference || reference === actualButton) {
+      topbar.element.style.removeProperty("margin-inline-end");
+      return;
+    }
+    // Keep the button in the Topbar API's React-owned location. Moving it into custom-app
+    // children can break Spotify reconciliation. Adjust only our trailing margin instead.
+    const appGroup = reference.closest('.custom-navlinks-scrollable_container div[role="presentation"]');
+    // Recalculate after Spotify reconstructs the navigation controls.
+    const header = reference.closest('#global-nav-bar');
+    if (header !== observedHeader) {
+      placementObserver.disconnect();
+      observedHeader = header;
+      if (header) placementObserver.observe(header, { childList: true, subtree: true });
+    }
     const computed = getComputedStyle(reference), bounds = reference.getBoundingClientRect();
     if (bounds.height > 20 && bounds.height < 70) topbar.element.style.setProperty("--mdbg-button-size", `${bounds.height}px`);
     if (computed.backgroundColor !== "rgba(0, 0, 0, 0)") topbar.element.style.setProperty("--mdbg-button-bg", computed.backgroundColor);
     topbar.element.style.setProperty("--mdbg-button-fg", computed.color);
     const svg = reference.querySelector("svg"); if (svg) topbar.element.style.setProperty("--mdbg-icon-size", `${svg.getBoundingClientRect().width || 24}px`);
+    if (appGroup && !appGroup.contains(topbar.element) && computed.direction !== "rtl") {
+      const appButtons = [...appGroup.querySelectorAll('button.custom-navlink, button[aria-label="Listening Stats"], button[aria-label="Marketplace"], button[aria-label="Visualizer"]')];
+      const first = appButtons[0]?.getBoundingClientRect(), second = appButtons[1]?.getBoundingClientRect();
+      const own = actualButton.getBoundingClientRect();
+      if (first?.width > 0 && own.width > 0 && first.left >= own.left) {
+        const nativeGap = second ? second.left - first.right : 8;
+        const targetGap = nativeGap >= 0 && nativeGap <= 24 ? nativeGap : 8;
+        const currentMargin = parseFloat(getComputedStyle(topbar.element).marginInlineEnd) || 0;
+        const nextMargin = currentMargin + targetGap - (first.left - own.right);
+        if (nextMargin >= -64 && nextMargin <= 24) topbar.element.style.marginInlineEnd = `${nextMargin}px`;
+      }
+    } else topbar.element.style.removeProperty("margin-inline-end");
   }
   // Tippy creates its renderer at construction: replacing render via setProps leaves the old popper.
   if (S.Tippy) {
